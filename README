@@ -1,0 +1,32 @@
+Yaspr - 2020
+
+Implementations of multiple encryption algorithms
+
+The 'doc' directory contains the RFCs, specs, and publications related to the
+implemented algorithms. 
+
+More algorithms coming ...
+
+Block ciphers:
+--------------
+
++ AES
++ RC5
++ RC6
++ Blowfish
++ Threefish
++ Red Pike
++ Serpent
++ Simeck
+- SM4
+
+Stream ciphers:
+---------------
+
++ RC4
+- Rabbit
+- SHAKE128
+- Salsa
+- Chacha
+
+..

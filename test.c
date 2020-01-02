@@ -1,0 +1,421 @@
+//
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+//
+#include "ycrypt.h"
+
+//
+void test_AES()
+{
+  const u32 l = 16;
+  u8 test_k[] = { 0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6,
+		  0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c, 0x00 };
+  
+  
+  u8 test_p[] = { 0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96,
+		  0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a, 0x00 };
+  
+  u8 test_c[] = { 0x3a, 0xd7, 0x7b, 0xb4, 0x0d, 0x7a, 0x36, 0x60,
+		  0xa8, 0x9e, 0xca, 0xf3, 0x24, 0x66, 0xef, 0x97, 0x00 };
+
+  u8 q[l + 1];
+  u8 p[l + 1];
+  u8 xkeys[AES_KEY_EXP_16];
+  
+  AES_expand_key(test_k, xkeys);
+  
+  AES_encrypt_128(test_p, xkeys, q);
+
+  //
+  printf("%30s", "AES encryption test");
+  
+  if (memcmp(q, test_c, l) == 0)
+    {
+      printf("\033[0;32m");
+      printf("%10s\n", "PASS");
+      printf("\033[0m");
+    }
+  else
+    {
+      printf("\033[0;31m");
+      printf("%10s\n", "FAIL");
+      printf("\033[0m");
+    }
+
+  //
+  AES_decrypt_128(q, xkeys, p);
+  
+  printf("%30s", "AES decryption test");
+
+  if (memcmp(p, test_p, l) == 0)
+    {
+      printf("\033[0;32m");
+      printf("%10s\n", "PASS");
+      printf("\033[0m");
+    }
+  else
+    {
+      printf("\033[0;31m");
+      printf("%10s\n", "FAIL");
+      printf("\033[0m");
+    }
+
+  printf("\n");
+  
+  
+}
+
+//
+void test_RC4()
+{
+  const u32 l = 16;
+  
+  u8 test_k[] =  { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef, 0x01, 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78, 0x00 };
+  u8 test_p[] =  { 0x02, 0x13, 0x24, 0x35, 0x46, 0x57, 0x68, 0x79, 0x8a, 0x9b, 0xac, 0xbd, 0xce, 0xdf, 0xe0, 0xf1, 0x00 };
+  u8 test_c[] =  { 0x79, 0x7f, 0x2c, 0xb1, 0x1a, 0x3f, 0x36, 0xe7, 0xc4, 0xb4, 0xeb, 0x9e, 0x2d, 0x3f, 0x3e, 0x00, 0x00 };
+  u8 q[l + 1];
+  
+  //
+  RC4_context_t *c = RC4_context_init(test_k);
+  
+  RC4_encrypt(c, test_p, l, q);
+
+  //
+  printf("%30s", "RC4 test");
+  
+  if (memcmp(q, test_c, l) == 0)
+    {
+      printf("\033[0;32m");
+      printf("%10s\n", "PASS");
+      printf("\033[0m");
+    }
+  else
+    {
+      printf("\033[0;31m");
+      printf("%10s\n", "FAIL");
+      printf("\033[0m");
+    }
+  
+  printf("\n");
+  
+  free(c);
+}
+
+//
+void test_RC5()
+{
+  const u32 l = 8;
+  
+  u8 test_k[] = { 0x1b, 0xec, 0x52, 0xf7, 0xfc, 0xcc, 0x95, 0x24, 0x49, 0x3d, 0x8f, 0xae, 0x11, 0x7a, 0x0b, 0xc8, 0x00 };
+  u8 test_p[] = { 0x4d, 0xbf, 0x44, 0xc6, 0xb1, 0xbe, 0x73, 0x6e, 0x00 };
+  u8 test_c[] = { 0x02, 0xb5, 0xd6, 0x01, 0x24, 0x1f, 0xc6, 0x2b, 0x00 };
+
+  RC5_encrypt((u32 *)test_p, (u32 *)test_k);
+  
+  //
+  printf("%30s", "RC5 test");
+  
+  if (memcmp(test_p, test_c, l) == 0)
+    {
+      printf("\033[0;32m");
+      printf("%10s\n", "PASS");
+      printf("\033[0m");
+    }
+  else
+    {
+      printf("\033[0;31m");
+      printf("%10s\n", "FAIL");
+      printf("\033[0m");
+    }
+  
+  printf("\n");  
+}
+
+//
+void test_RC6()
+{
+  const u32 l = 16;
+  
+  //32 bytes key - 256 bits
+  u8 test_k[] = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,
+		  0x01, 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78,
+		  0x89, 0x9a, 0xab, 0xbc, 0xcd, 0xde, 0xef, 0xf0,
+		  0x10, 0x32, 0x54, 0x76, 0x98, 0xba, 0xdc, 0xfe, 0x00 };
+  
+  u8 test_p[] = { 0x02, 0x13, 0x24, 0x35, 0x46, 0x57, 0x68, 0x79,
+		  0x8a, 0x9b, 0xac, 0xbd, 0xce, 0xdf, 0xe0, 0xf1, 0x00 };
+  
+  u8 test_c[] = { 0xc8, 0x24, 0x18, 0x16, 0xf0, 0xd7, 0xe4, 0x89,
+		  0x20, 0xad, 0x16, 0xa1, 0x67, 0x4e, 0x5d, 0x48, 0x00 };
+  
+  RC6_encrypt_128_256((u32 *)test_p, (u32 *)test_k);
+
+  //
+  printf("%30s", "RC6 test");
+  
+  if (memcmp(test_p, test_c, l) == 0)
+    {
+      printf("\033[0;32m");
+      printf("%10s\n", "PASS");
+      printf("\033[0m");
+    }
+  else
+    {
+      printf("\033[0;31m");
+      printf("%10s\n", "FAIL");
+      printf("\033[0m");
+    }
+
+  printf("\n");    
+}
+
+//
+void test_BLOWFISH()
+{
+  const u32 l = 8;
+
+  u8 test_k[] = { 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x00 };
+  u8 test_p[] = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF, 0x00 };
+  u8 test_c[] = { 0x7D, 0x0C, 0xC6, 0x30, 0xAF, 0xDA, 0x1E, 0xC7, 0x00 };
+  u8 q[l + 1];
+  
+  //
+  BLOWFISH_context_t *c = BLOWFISH_context_init(test_k, l);
+
+  //Encrypt
+  BLOWFISH_ecb_process(c, test_p, q, BLOWFISH_ENCRYPT);
+
+  printf("%30s", "BLOWFISH encryption test");
+
+  if (memcmp(q, test_c, l) == 0)
+    {
+      printf("\033[0;32m");
+      printf("%10s\n", "PASS");
+      printf("\033[0m");
+    }
+  else
+    {
+      printf("\033[0;31m");
+      printf("%10s\n", "FAIL");
+      printf("\033[0m");
+    }
+  
+  //Decrypt
+  BLOWFISH_ecb_process(c, test_c, q, BLOWFISH_DECRYPT);
+
+  printf("%30s", "BLOWFISH decryption test");
+  
+  if (memcmp(q, test_p, l) == 0)
+    {
+      printf("\033[0;32m");
+      printf("%10s\n", "PASS");
+      printf("\033[0m");
+    }
+  else
+    {
+      printf("\033[0;31m");
+      printf("%10s\n", "FAIL");
+      printf("\033[0m");
+    }
+  
+  printf("\n");
+  
+  free(c);
+}
+
+//
+void test_THREEFISH()
+{
+  const u32 l = 32;
+  
+  //128-bit tweak - 16 bytes
+  u8 test_t[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+		  0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x00 };
+  
+  //256-bit master key - 32 bytes
+  u8 test_k[] = { 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+		  0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
+		  0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
+		  0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f, 0x00 };
+  
+  //256-bit plain text - 32 bytes
+  u8 test_p[] = { 0xff, 0xfe, 0xfd, 0xfc, 0xfb, 0xfa, 0xf9, 0xf8,
+		  0xf7, 0xf6, 0xf5, 0xf4, 0xf3, 0xf2, 0xf1, 0xf0,
+		  0xef, 0xee, 0xed, 0xec, 0xeb, 0xea, 0xe9, 0xe8,
+		  0xe7, 0xe6, 0xe5, 0xe4, 0xe3, 0xe2, 0xe1, 0xe0, 0x00 };
+  
+  //256-bit cipher text - 32 bytes
+  u8 test_c[] = { 0xe0, 0xd0, 0x91, 0xff, 0x0e, 0xea, 0x8f, 0xdf,
+		  0xc9, 0x81, 0x92, 0xe6, 0x2e, 0xd8, 0x0a, 0xd5,
+		  0x9d, 0x86, 0x5d, 0x08, 0x58, 0x8d, 0xf4, 0x76,
+		  0x65, 0x70, 0x56, 0xb5, 0x95, 0x5e, 0x97, 0xdf, 0x00 };
+  
+  //
+  u8 test_kt[49];
+
+  //
+  memcpy(test_kt     , test_k, 32);
+  memcpy(test_kt + 32, test_t, 16); 
+
+  //
+  THREEFISH_encrypt(test_p, test_kt);
+  
+  printf("%30s", "THREEFISH test");
+  
+  if (memcmp(test_c, test_p, l) == 0)
+    {
+      printf("\033[0;32m");
+      printf("%10s\n", "PASS");
+      printf("\033[0m");
+    }
+  else
+    {
+      printf("\033[0;31m");
+      printf("%10s\n", "FAIL");
+      printf("\033[0m");
+    }
+  
+  printf("\n");
+}
+
+//
+void test_SERPENT()
+{
+  u32 l = 16;
+  
+  u8 test_k[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 
+		  0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,  
+		  0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,  
+		  0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x00 };
+
+  u8 test_p[] = { 0x3d, 0xa4, 0x6f, 0xfa, 0x6f, 0x4d, 0x6f, 0x30,  
+		  0xcd, 0x25, 0x83, 0x33, 0xe5, 0xa6, 0x13, 0x69, 0x00 };
+  
+  u8 test_c[] = { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,  
+		  0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x00 };
+  
+  //
+  SERPENT_encrypt((u32 *)test_p, (u32 *)test_k);
+
+  printf("%30s", "SERPENT test");
+  
+  if (memcmp(test_c, test_p, l) == 0)
+    {
+      printf("\033[0;32m");
+      printf("%10s\n", "PASS");
+      printf("\033[0m");
+    }
+  else
+    {
+      printf("\033[0;31m");
+      printf("%10s\n", "FAIL");
+      printf("\033[0m");
+    }
+  
+  printf("\n");
+}
+
+//
+void test_SIMECK()
+{
+  const u32 l = 8;
+
+  //128-bit key - 16 bytes 
+  u8 test_k[] = { 0x00, 0x01, 0x02, 0x03, 0x08, 0x09, 0x0a, 0x0b,
+		  0x10, 0x11, 0x12, 0x13, 0x18, 0x19, 0x1a, 0x1b, 0x00 };
+ 
+  //64-bit plain text - 8 bytes
+  u8 test_p[] = { 0x75, 0x6e, 0x64, 0x20, 0x6c, 0x69, 0x6b, 0x65, 0x00 };
+
+  //64-bit cipher text - 8 bytes
+  u8 test_c[] = { 0xed, 0xb7, 0x7a, 0x5f, 0x02, 0x69, 0xce, 0x45, 0x00 };
+
+  //
+  SIMECK_encrypt((u32 *)test_p, (u32 *)test_k);
+
+  printf("%30s", "SIMECK test");
+  
+  if (memcmp(test_c, test_p, l) == 0)
+    {
+      printf("\033[0;32m");
+      printf("%10s\n", "PASS");
+      printf("\033[0m");
+    }
+  else
+    {
+      printf("\033[0;31m");
+      printf("%10s\n", "FAIL");
+      printf("\033[0m");
+    }
+  
+  printf("\n");  
+}
+
+//
+void test_RED_PIKE()
+{
+  const u32 l = 8;
+  
+  u32 test_ko[2];
+  u8 test_k[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x00 }; 
+  u8 test_p0[] = { 0x3d, 0xa4, 0x6f, 0xfa, 0x6f, 0x4d, 0x6f, 0x30, 0x00 };
+  u8 test_p1[] = { 0x3d, 0xa4, 0x6f, 0xfa, 0x6f, 0x4d, 0x6f, 0x30, 0x00 };
+
+  //Intialize key
+  RED_PIKE_cvt_key(test_k, test_ko);
+
+  //Encrypt
+  RED_PIKE_encrypt((u32 *)test_p0, test_ko);
+
+  printf("%30s", "RED_PIKE test");
+
+  //Make sure encrypted output is different from plain input
+  if (memcmp(test_p0, test_p1, l))
+    {
+      //Decrypt output
+      RED_PIKE_decrypt((u32 *)test_p0, test_ko);
+
+      //Compare decrypted with the plain input 
+      if (memcmp(test_p0, test_p1, l) == 0)
+	{
+	  printf("\033[0;32m");
+	  printf("%10s\n", "PASS");
+	  printf("\033[0m");
+	}
+      else
+	{
+	  printf("\033[0;31m");
+	  printf("%10s\n", "FAIL");
+	  printf("\033[0m");
+	}
+    }
+  else
+    {
+      printf("\033[0;31m");
+      printf("%10s\n", "FAIL");
+      printf("\033[0m");
+    }
+  
+  printf("\n");  
+}
+
+//
+int main(int argc, char **argv)
+{
+  //
+  test_AES();
+  test_RC4();
+  test_RC5();
+  test_RC6();
+  test_SIMECK();
+  test_SERPENT();
+  test_BLOWFISH();
+  test_THREEFISH();
+
+  //
+  test_RED_PIKE();
+  
+  return 0;
+}
