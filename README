@@ -7,6 +7,9 @@ implemented algorithms.
 
 More algorithms coming ...
 
+The implementations provided here are meant as references for testing. They are not
+meant for production code.
+
 Block ciphers:
 --------------
 
@@ -17,6 +20,7 @@ Block ciphers:
 + Threefish
 + Red Pike
 + Serpent
++ Present
 + Simeck
 - SM4
 

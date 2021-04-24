@@ -8,6 +8,8 @@
 #include "rc6/rc6.h"
 #include "simeck/simeck.h"
 #include "serpent/serpent.h"
+#include "present/present.h"
 #include "blowfish/blowfish.h"
 #include "threefish/threefish.h"
 #include "red_pike/red_pike.h"
+

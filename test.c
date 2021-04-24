@@ -318,6 +318,40 @@ void test_SERPENT()
 }
 
 //
+int test_PRESENT()
+{
+  //
+  B clear[]  = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF };
+  B key[]    = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF,
+                 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF };
+  B cipher[] = { 0x0E, 0x9D, 0x28, 0x68, 0x5E, 0x67, 0x1D, 0xD6 };
+
+  //
+  PRESENT_encrypt(key, clear);
+  
+  printf("%30s", "PRESENT test");
+  
+  //
+  if (memcmp(clear, cipher, 8) == 0)
+    {
+      printf("\033[0;32m");
+      printf("%10s\n", "PASS");
+      printf("\033[0m");
+    }
+  else
+    {
+      printf("\033[0;31m");
+      printf("%10s\n", "FAIL");
+      printf("\033[0m");
+    }
+
+  printf("\n");
+
+  //
+  return 0;
+}
+
+//
 void test_SIMECK()
 {
   const u32 l = 8;
@@ -411,9 +445,10 @@ int main(int argc, char **argv)
   test_RC6();
   test_SIMECK();
   test_SERPENT();
+  test_PRESENT();
   test_BLOWFISH();
   test_THREEFISH();
-
+  
   //
   test_RED_PIKE();
   
